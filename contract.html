@@ -1,36 +1,17 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
 
+<head>
+    <meta charset="utf-8">
+    <title>send transaction</title>
+    <link rel=stylesheet href=css/base.css>
+    <link rel=stylesheet href=css/ui-block.css>
+    <script src=nebPay.js></script>    
 </head>
 
-<body>
-	<div class="contenner">
+<style>
+</style>
 
-		<div class="create">
-        	<input id="contract_name_c" type="text">
-        	<input id="contract_detail_c" type="text">
-        	<input id="contract_presigner_c" type="text">
-        	<input id="contract_presignerpwd_c" type="text">
-        	<button id="create">create contract</button>
-    	</div>
-
-    	<div class="get">
-        	<input id="contract_name_g">
-        	<p id="contract_detail"></p>
-        	<p id="contract_signed"></p>
-        	<button class="get" onClick="getContract()">get contract</button>
-    	</div>
-
-    	<div class="sign">
-        	<input id="contract_name_s" type="text">
-        	<input id="contract_detail_s" type="text">
-        	<input id="contract_presigner_s" type="text">
-        	<input id="contract_presignerpwd_s" type="text">
-        	<button class="sign">sign contract</button>
-    	</div>
-
-	</div>
 <script src=lib/jquery-3.3.1.min.js></script>
 <script src=lib/nebPay.js></script>
 <script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
@@ -39,15 +20,17 @@
 
     var dappAddress = "n1eeDdo8r76no5VDvhrocR3THBgCjmXZQs3";
 
+    var NebPay = require("nebpay");
+    var nebPay = new NebPay();
+
     var nebulas = require("nebulas"),
         Account = nebulas.Account,
         neb = new nebulas.Neb();
     neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
 
-	// $("#get").click(function(){
 	function getContract(){
-        var from = Account.NewAccount().getAddressString()
 
+        var from = Account.NewAccount().getAddressString()
         var value = "0"
         var nonce = "0"
         var gas_price = "1000000"
@@ -62,14 +45,226 @@
         }
 
         neb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (response) {
-        	console.log(response)
+        	console.log("response of get: " + response)
+        	document.getElementById("txResult_g").innerHTML = response.result
+        	var responseObj = JSON.parse(response.result)
+        	document.getElementById("contract_detail_g").innerHTML = responseObj.contractDetail
+        	document.getElementById("contract_author_g").innerHTML = responseObj.author
+        	document.getElementById("contract_signer_g").innerHTML = responseObj.signer
+        	document.getElementById("contract_signed_g").innerHTML = responseObj.signed
+
         }).catch(function (err) {
             console.log("error:" + err.message)
         })
-
     }
 
+    function createContract(){
+
+    	var to = dappAddress;
+        var value = "0";
+        var callFunction = "createContract"
+
+        var contractName = document.getElementById("contract_name_c").value;
+        var contracDetail = document.getElementById("contract_detail_c").value;
+        var contractPreSigner = document.getElementById("contract_presigner_c").value;
+        var contractPassword = document.getElementById("contract_presignerpwd_c").value;
+
+        var callArgs = "[" + "\"" + contractName + "\"," + "\"" + contracDetail + "\"," + "\"" + contractPreSigner + "\"," + "\"" + contractPassword + "\"" + "]"; 
+
+        nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: createResult
+        });
+    }
+
+    function createResult(response) {
+        console.log("response of create: " + response)
+        // document.getElementById("txResult_c").innerHTML = response.result
+    }
+
+    function signContract(){
+
+    	var to = dappAddress;
+        var value = "0";
+        var callFunction = "signContract"
+
+        var contractName = document.getElementById("contract_name_s").value;
+        var contractPreSigner = document.getElementById("contract_presigner_s").value;
+        var contractPassword = document.getElementById("contract_presignerpwd_s").value;
+
+        var callArgs = "[" + "\"" + contractName + "\"," + "\"" + contractPreSigner + "\"," + "\"" + contractPassword + "\"" + "]"; 
+
+        nebPay.call(to, value, callFunction, callArgs, {    //使用nebpay的call接口去调用合约,
+            listener: createResult
+        });
+    }
+
+    function signResult(response) {
+        console.log("response of sign: " + response)
+        // document.getElementById("txResult_s").innerHTML = response.result
+    }
+
+    // //send transaction to another address
+    // function onClickSendTx() {
+    //     var to = document.getElementById("inputReceiveAddress").value;
+    //     var amount = document.getElementById("inputAmount").value;
+    //     nebPay.pay(to, amount, {
+    //         qrcode: {
+    //             showQRCode: true
+    //         },
+    //         goods: {
+    //             name: "test",
+    //             desc: "test goods"
+    //         },
+    //         //callback: cbSendTx
+    //         listener: cbSendTx
+    //     });
+    // }
+    // //callback function of onClickSendTx, to handle the transaction response
+    // function cbSendTx(resp){
+    //     console.log("callback resp: " + JSON.stringify(resp))
+    //     document.getElementById("txResult").innerHTML = "send transaction result:\n" +  JSON.stringify(resp)
+    // }
+
+    // function onClickCallDapp() {
+    //     var to = document.getElementById("inputContractAddress").value;
+    //     var value = document.getElementById("inputAmount2").value;
+    //     var callFunction = document.getElementById("inputFunction").value;
+    //     var callArgs = "[\"" + document.getElementById("inputParameter").value.trim() + "\"]"; //in the form of ["args"]
+    //     nebPay.call(to, value, callFunction, callArgs, {
+    //         qrcode: {
+    //             showQRCode: true
+    //         },
+    //         goods: {
+    //             name: "test",
+    //             desc: "test goods"
+    //         },
+    //         //callback: cbCallDapp
+    //         listener: cbCallDapp
+    //     });
+    // }
+
+    // function cbCallDapp(resp){
+    //     console.log("callback resp: " + JSON.stringify(resp))
+    //     document.getElementById("callResult").innerHTML = "call Dapp result:\n" +  JSON.stringify(resp)
+    // }
+
+    // function onClickSimulateCall() {
+    //     var to = document.getElementById("inputContractAddress").value;
+    //     var value = document.getElementById("inputAmount2").value;
+    //     var callFunction = document.getElementById("inputFunction").value;
+    //     var callArgs = "[\"" + document.getElementById("inputParameter").value.trim() + "\"]"; //in the form of ["args"]
+    //     nebPay.simulateCall(to, value, callFunction, callArgs, {
+    //         qrcode: {
+    //             showQRCode: true
+    //         },
+    //         goods: {
+    //             name: "test",
+    //             desc: "test goods"
+    //         },
+    //         listener: cbSimulateCall
+    //     });
+    // }
+
+    // function cbSimulateCall(resp){
+    //     console.log("callback resp: " + JSON.stringify(resp))
+    //     document.getElementById("simulateCallResult").innerHTML = "simulate call result:\n" +  JSON.stringify(resp)
+    // }
+
 </script>
+
+<body>
+	<div class="contenner">
+
+		<h3> Create contract</h3>
+		<p>Input the contract info here to create your smart contract</p>
+		<div class="create">
+			<table>
+				<tbody>
+					<tr>
+						<td><label for="contract_name_c">Contract Name: </label></td>
+						<td><input id="contract_name_c"></td>
+					</tr>
+					<tr>
+						<td><label for="contract_detail_c">Contract Detail: </label></td>
+						<td><input id="contract_detail_c" size="200"></td>
+					</tr>
+					<tr>
+						<td><label for="contract_presigner_c">Contract preSigner: </label></td>
+						<td><input id="contract_presigner_c"></td>
+					</tr>
+					<tr>				
+						<td><label for="contract_presignerpwd_c">Contract Password: </label></td>
+						<td><input id="contract_presignerpwd_c"></td>
+					</tr>
+        		</tbody>
+			</table>
+			<div>
+				<button id="create" class="btn btn-block" onclick="createContract()">Create Contract</button>
+		        <p id="txResult_c" style="color:#FF0000;font-size:12px;"></p>
+
+		   	</div>
+    	</div>
+
+    	<h3> Get contract</h3>
+		<p>Input contract name to get your smart contract</p>
+    	<div class="get">
+    		<table>
+				<tbody>
+					<tr>
+						<td><label for="contract_name_g">Contract Name: </label></td>
+						<td><input id="contract_name_g"></td>
+					</tr>
+					<tr>
+						<td><label for="contract_detail_g">Contract Detail: </label></td>
+						<td><p id="contract_detail_g" style="color:#FF0000;font-size:12px;"></p></td>
+					</tr>
+					<tr>
+						<td><label for="contract_author_g">Contract Author: </label></td>
+						<td><p id="contract_author_g" style="color:#FF0000;font-size:12px;"></p></td>
+					</tr>
+					<tr>
+						<td><label for="contract_signer_g">Contract Signer: </label></td>
+						<td><p id="contract_signer_g" style="color:#FF0000;font-size:12px;"></p></td>
+					</tr>
+					<tr>
+						<td><label for="contract_signed_g">Contract Status: </label></td>
+						<td><p id="contract_signed_g" style="color:#FF0000;font-size:12px;"></p></td>
+					</tr>
+        		</tbody>
+			</table>
+			<div>
+		        <button id="get" class="btn btn-block" onclick="getContract()">Get Contract</button></td>
+		        <p id="txResult_g" style="color:#FF0000;font-size:12px;"></p></td>
+		   	</div>
+    	</div>
+
+		<h3> Sign contract</h3>
+		<p>Input contract name, presigner and psaaword to sign your smart contract</p>
+    	<div class="sign">
+    		<table>
+				<tbody>
+					<tr>
+						<td><label for="contract_name_s">Contract Name: </label></td>
+						<td><input id="contract_name_s"></td>
+					</tr>
+					<tr>
+						<td><label for="contract_presigner_s">Contract preSigner: </label></td>
+						<td><input id="contract_presigner_s"></td>
+					</tr>
+					<tr>				
+						<td><label for="contract_presignerpwd_s">Contract Password: </label></td>
+						<td><input id="contract_presignerpwd_s"></td>
+					</tr>
+        		</tbody>
+			</table>
+			<div>
+		        <button id="sign" class="btn btn-block" onclick="signContract()">Sign Contract</button>
+		        <p id="txResult_s" style="color:#FF0000;font-size:12px;"></p>
+		   	</div>
+    	</div>
+	</div>
+
+
 </body>
 
 </html>
