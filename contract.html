@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+</head>
+
+<body>
+	<div class="contenner">
+
+		<div class="create">
+        	<input id="contract_name_c" type="text">
+        	<input id="contract_detail_c" type="text">
+        	<input id="contract_presigner_c" type="text">
+        	<input id="contract_presignerpwd_c" type="text">
+        	<button id="create">create contract</button>
+    	</div>
+
+    	<div class="get">
+        	<input id="contract_name_g">
+        	<p id="contract_detail"></p>
+        	<p id="contract_signed"></p>
+        	<button class="get" onClick="getContract()">get contract</button>
+    	</div>
+
+    	<div class="sign">
+        	<input id="contract_name_s" type="text">
+        	<input id="contract_detail_s" type="text">
+        	<input id="contract_presigner_s" type="text">
+        	<input id="contract_presignerpwd_s" type="text">
+        	<button class="sign">sign contract</button>
+    	</div>
+
+	</div>
+<script src=lib/jquery-3.3.1.min.js></script>
+<script src=lib/nebPay.js></script>
+<script src=lib/bootstrap-4.0.0-dist/js/bootstrap.min.js></script>
+<script src=lib/nebulas.js></script>
+<script>
+
+    var dappAddress = "n1eeDdo8r76no5VDvhrocR3THBgCjmXZQs3";
+
+    var nebulas = require("nebulas"),
+        Account = nebulas.Account,
+        neb = new nebulas.Neb();
+    neb.setRequest(new nebulas.HttpRequest("https://testnet.nebulas.io"));
+
+	// $("#get").click(function(){
+	function getContract(){
+        var from = Account.NewAccount().getAddressString()
+
+        var value = "0"
+        var nonce = "0"
+        var gas_price = "1000000"
+        var gas_limit = "2000000"
+        var callFunction = "getContract"
+        var contractName = $("input[id='contract_name_g']").val()
+
+        var callArgs = "[" + "\"" + contractName + "\"" + "]"; 
+        var contract = {
+            "function": callFunction,
+            "args": callArgs
+        }
+
+        neb.api.call(from,dappAddress,value,nonce,gas_price,gas_limit,contract).then(function (response) {
+        	console.log(response)
+        }).catch(function (err) {
+            console.log("error:" + err.message)
+        })
+
+    }
+
+</script>
+</body>
+
+</html>
