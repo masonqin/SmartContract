@@ -1,0 +1,312 @@
+<html>
+
+<head>
+    <meta charset=utf-8>
+    <link rel="icon shortcut" href=../static/img/logo.png type=image/png>
+    <link rel=apple-touch-icon href=../static/img/logo.png>
+    <link rel=stylesheet href=../static/lib/bootstrap-4.0.0-dist/css/bootstrap.min.css>
+    <link rel=stylesheet href=../static/lib/prismjs-1.13.0/prism.css>
+    <link rel=stylesheet href=../static/css/base.css>
+    <link rel=stylesheet href=../static/css/ui-block.css>
+    <link rel=stylesheet href=../static/css/codemirror.css>
+    <meta name=viewport content="width=device-width">
+    <title>NEBULAS</title>
+    <style>
+        #content {
+            border-top: 1px solid;
+        }
+
+        .title {
+            text-align: center;
+            color: black;
+            font-size: 30px;
+        }
+
+        .active1 {
+            display: none;
+        }
+
+        #tabs {
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        #tabs li {
+            float: left;
+            margin: 0;
+        }
+
+        #tabs li a {
+            position: relative;
+            padding: 10px 50px;
+            float: left;
+            text-decoration: none;
+            text-shadow: 0 1px 0 rgba(255, 255, 255, .8);
+        }
+
+        .ccc {
+            background-color: black;
+        }
+
+        .ccc a {
+            color: #fff;
+        }
+
+        .current a {
+            outline: 0;
+            z-index: 4;
+        }
+
+        .hoverItem a {
+            background: black;
+            color: #fff;
+        }
+
+        .tab {
+            display: none;
+        }
+
+        .show {
+            display: block;
+        }
+
+        .execution_banner {
+            height: 200px;
+            background-color: #f5f5f5;
+            margin: 0 auto;
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+        }
+
+        .form-check {
+            display: inline-block;
+        }
+
+        #receipt {
+            word-break: break-all;
+        }
+
+        #receipt_call {
+            word-break: break-all;
+        }
+
+        .code {
+            background-color: #f8f9fa;
+            font-family: consolas, menlo, monaco, lucida console, liberation mono, dejavu sans mono, bitstream vera sans mono, courier new, monospace;
+            overflow: auto;
+            white-space: pre;
+        }
+
+        .errmsg {
+            color: red;
+        }
+
+        .err {
+            border-color: red;
+        }
+
+        .prompt{
+            width: 20px;
+            height: 20px;
+            display: inline-table;
+        }
+        
+        .prompt_contenner{
+            width: 200px;
+            height: 100px;
+            border: 1px solid black;
+            position: absolute;
+            left: 16%;
+            margin-top: -6%;
+            box-shadow:2px 2px 17px #333333;
+        }
+
+        .call_prompt_contenner{
+            width: 200px;
+            height: 100px;
+            border: 1px solid black;
+            position: absolute;
+            left: 28%;
+            margin-top: -14%;
+            box-shadow:2px 2px 17px #333333;
+        }
+
+         .function_prompt_contenner{
+            width: 200px;
+            height: 100px;
+            border: 1px solid black;
+            position: absolute;
+            left: 24%;
+            margin-top: -14%;
+            box-shadow:2px 2px 17px #333333;
+        }
+
+        .CodeMirror {border: 1px solid black; font-size:13px;}
+
+        .main{
+
+            background-color: #fff;
+            border-radius: 20px;
+
+            height: 700px;
+            margin: auto;
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+        }
+    </style>
+
+    <script src=../static/lib/jquery-3.3.1.min.js></script>
+    <script src=../static/lib/bootstrap-4.0.0-dist/js/bootstrap.bundle.min.js data-depends=jquery.slim></script>
+    <script src=../static/lib/bootbox.min.js data-depends="bootstrap jquery.slim"></script>
+    <script src=../static/lib/blockies.min.js></script>
+    <script src=../static/lib/js-beautify-1.7.5/beautify.js></script>
+    <script src=../static/lib/prismjs-1.13.0/prism.js></script>
+    <script src=../static/lib/nebulas.js></script>
+    <script src=../static/js/1-localSave.js></script>
+    <script src=../static/js/home.v1.js></script>
+    <script src=../static/js/i18n.js data-depends=jquery.slim></script>
+    <script src=../static/js/ui-block.js data-depends="bootbox blockies jquery.slim i18n.js nebulas.js"></script>
+    <script src=../static/lib/codemirror/codemirror.js></script>
+    <script src=../static/lib/codemirror/javascript.js></script>
+    <script src=../static/lib/nebPay.js></script>
+
+</head>
+
+<body>
+    <div class="main">
+    <div class=logo-main></div>
+
+
+    <div class=container>
+        <div class=header> 
+            <h1>Smart Contract</h1>
+            <br><br><br><br>
+        </div>
+
+        <ul id=tabs id=myTab role=tablist>
+            <li class="current ccc">
+                <a href=# title=tab1 >Create</a>
+            </li>
+            <li>
+                <a href=# title=tab2>Get</a>
+            </li>
+            <li>
+                <a href=# title=tab3>Sign</a>
+            </li>
+        </ul>
+        <div id=content>
+            <!-- search contract -->
+            <div class="search_contract show tab" id=tab1>
+                <div class=title>
+                    <span>Create contract</span>
+                </div>
+                <div class="create">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><label for="contract_name_c">Contract Name: </label></td>
+                                <td><input id="contract_name_c"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_detail_c">Contract Detail: </label></td>
+                                <td><input id="contract_detail_c" size="100"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_presigner_c">Contract preSigner: </label></td>
+                                <td><input id="contract_presigner_c"></td>
+                            </tr>
+                            <tr>                
+                                <td><label for="contract_presignerpwd_c">Contract Password: </label></td>
+                                <td><input id="contract_presignerpwd_c"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <button id="create" class="btn btn-block" onclick="createContract()">Create Contract</button>
+                        <p id="txResult_c" style="color:#FF0000;font-size:12px;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="deploy_contract tab" id=tab2>
+                <div class=title>
+                    <span>Get Contract</span>
+                </div>
+                <div class="get">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><label for="contract_name_g">Contract Name: </label></td>
+                                <td><input id="contract_name_g"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_detail_g">Contract Detail: </label></td>
+                                <td><p id="contract_detail_g" style="color:#FF0000;font-size:12px;"></p></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_author_g">Contract Author: </label></td>
+                                <td><p id="contract_author_g" style="color:#FF0000;font-size:12px;"></p></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_signer_g">Contract Signer: </label></td>
+                                <td><p id="contract_signer_g" style="color:#FF0000;font-size:12px;"></p></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_signed_g">Contract Status: </label></td>
+                                <td><p id="contract_signed_g" style="color:#FF0000;font-size:12px;"></p></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <button id="get" class="btn btn-block" onclick="getContract()">Get Contract</button></td>
+                        <p id="txResult_g" style="color:#FF0000;font-size:12px;"></p></td>
+                    </div>
+                </div>
+
+                <div class="active1 next row">
+  
+                </div>
+            </div>
+
+            <div class="run_contract tab" id=tab3>
+                <div class=title>
+                    <span>Sign Contract</span>
+                </div>
+                <div class="sign">
+                    <table>
+                        <tbody>
+                            <tr>
+                                <td><label for="contract_name_s">Contract Name: </label></td>
+                                <td><input id="contract_name_s"></td>
+                            </tr>
+                            <tr>
+                                <td><label for="contract_presigner_s">Contract preSigner: </label></td>
+                                <td><input id="contract_presigner_s"></td>
+                            </tr>
+                            <tr>                
+                                <td><label for="contract_presignerpwd_s">Contract Password: </label></td>
+                                <td><input id="contract_presignerpwd_s"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <div>
+                        <button id="sign" class="btn btn-block" onclick="signContract()">Sign Contract</button>
+                        <p id="txResult_s" style="color:#FF0000;font-size:12px;"></p>
+                    </div>
+                </div>
+
+                <div class="active1 result" id=result></div>
+
+            </div>
+        </div>
+    </div>
+    </div>
+    <div class=footer></div>
+    <script src=../static/js/my.js></script>
+</body>
+</html>
